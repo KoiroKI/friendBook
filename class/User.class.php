@@ -1,15 +1,19 @@
 <?php
-class User {     private int $_id;
+class User {
+    private int $_id;
     private string $_email;
 
-
-    public function __construct(int $id, $email)
+    public function __construct(int $id, string $email)
     {
         $this->_id = $id;
         $this->_email = $email;
     }
-    static function Register(string $email, string $password) : bool {
 
+    public function GetID(): int {
+        return $this->_id;
+    }
+
+    static function Register(string $email, string $password) : bool {
         $passwordHash = password_hash($password, PASSWORD_ARGON2I);
 
         $db = new mysqli('localhost', 'root', '', 'friendbook');
@@ -21,30 +25,30 @@ class User {     private int $_id;
         $q->bind_param("ss", $email, $passwordHash);
 
         $result = $q->execute();
-//   /ᐠ｡ꞈ｡ᐟ\
+
         return $result;
     }
+
     static function Login(string $email, string $password) : bool {
         $db = new mysqli('localhost', 'root', '', 'friendbook');
         $sql = "SELECT * FROM user WHERE email = ?";
         $q = $db->prepare($sql);
         $q->bind_param("s", $email);
         $result = $q->execute();
-        if(!$result)
+
+        if (!$result) {
             return false;
+        }
+
         $row = $q->get_result()->fetch_assoc();
-        if(password_verify($password, $row['password']));
-        {
+
+        if (password_verify($password, $row['password'])) {
             $u = new User($row['ID'], $row['email']);
             $_SESSION['user'] = $u;
             return true;
+        } else {
+            return false;
         }
-        else 
-            return false;
-        else 
-            return false;
-        else 
-            return false;
     }
 }
 ?>
